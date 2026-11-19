@@ -32,6 +32,7 @@ useEffect(() => {
       const res = await axios.get(API_BASE);
 
       const nextFiles = getFilesFromResponse(res.data);
+      console.log("FILES:", nextFiles);
 
       setFiles(nextFiles);
 
