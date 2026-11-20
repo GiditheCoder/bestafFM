@@ -4,7 +4,14 @@ import { Eye, Download, Trash2, Upload } from "lucide-react";
 import FolderIcon from "../images/folder.png";
 import FolderIcon2 from "../images/folder2.png";
 
-const API_BASE = "https://bestaf-logger-0e2900cffa8d.herokuapp.com/";
+const API_BASE = "https://url/files";
+
+const bestafApi = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    Authorization: "02fd707a7bd67d8de352973c5bfda2c1136fbf0c81ad478b",
+  },
+});
 
 const getFilesFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -29,7 +36,7 @@ const TxtViewer = () => {
 useEffect(() => {
   const fetchFiles = async () => {
     try {
-      const res = await axios.get(API_BASE);
+      const res = await bestafApi.get("/");
 
       const nextFiles = getFilesFromResponse(res.data);
       console.log("FILES:", nextFiles);
@@ -62,8 +69,8 @@ useEffect(() => {
     formData.append("file", file);
 
     try {
-      await axios.post(`${API_BASE}upload`, formData);
-      const res = await axios.get(API_BASE);
+      await bestafApi.post("/upload", formData);
+      const res = await bestafApi.get("/");
       setFiles(getFilesFromResponse(res.data));
     } catch (err) {
       setUploadError(
@@ -80,7 +87,7 @@ useEffect(() => {
     setShowPopup(true);
     setFileContent("");
     try {
-      const res = await axios.get(`${API_BASE}${file._id}`, {
+      const res = await bestafApi.get(`/${file._id}`, {
         responseType: "text",
       });
       setTimeout(() => {
@@ -102,7 +109,7 @@ useEffect(() => {
     }
     setPreviewLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}${file._id}`, {
+      const res = await bestafApi.get(`/${file._id}`, {
         responseType: "text",
       });
       setTimeout(() => {
@@ -115,13 +122,25 @@ useEffect(() => {
     }
   };
 
-  const handleDownload = (file) => {
-    window.open(`${API_BASE}${file._id}`, "_blank");
+  const handleDownload = async (file) => {
+    try {
+      const res = await bestafApi.get(`/${file._id}`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(res.data);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error downloading file:", err);
+    }
   };
 
   const handleDelete = async (file) => {
     try {
-      const res = await axios.delete(`${API_BASE}${file._id}`);
+      const res = await bestafApi.delete(`/${file._id}`);
       if (res.data.success) {
         setFiles(files.filter((f) => f._id !== file._id));
         setSelectedFile(null);
