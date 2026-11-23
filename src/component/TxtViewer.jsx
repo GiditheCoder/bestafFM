@@ -4,7 +4,11 @@ import { Eye, Download, Trash2, Upload } from "lucide-react";
 import FolderIcon from "../images/folder.png";
 import FolderIcon2 from "../images/folder2.png";
 
-const API_BASE = "https://url/files";
+// Base URL of the file API. Override with VITE_API_BASE_URL in .env.local.
+// Note: the API serves files at its root ("/"), not under "/files".
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://bestaf-logger-0e2900cffa8d.herokuapp.com";
 
 const bestafApi = axios.create({
   baseURL: API_BASE,
