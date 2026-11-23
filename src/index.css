@@ -6,6 +6,14 @@
   font-style: normal;
 } */
 
+/* Default text weight for the whole app (400 = normal, 500 = medium, 600 = semibold).
+   Elements with Tailwind font-* classes (e.g. font-bold) keep their own weight. */
+@layer base {
+  body {
+    font-weight: 500;
+  }
+}
+
 .noselect {
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none;    /* Firefox */
