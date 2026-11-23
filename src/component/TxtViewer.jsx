@@ -4,18 +4,24 @@ import { Eye, Download, Trash2, Upload } from "lucide-react";
 import FolderIcon from "../images/folder.png";
 import FolderIcon2 from "../images/folder2.png";
 
-// Base URL of the file API. Override with VITE_API_BASE_URL in .env.local.
-// Note: the API serves files at its root ("/"), not under "/files".
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://bestaf-logger-0e2900cffa8d.herokuapp.com";
+// Configure in .env.local (see .env.example), then restart Vite.
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const AUTH_KEY = import.meta.env.VITE_AUTH_KEY;
 
+// The server checks the key in an "AUTH_KEY" header (not "Authorization").
 const bestafApi = axios.create({
   baseURL: API_BASE,
   headers: {
-    Authorization: "02fd707a7bd67d8de352973c5bfda2c1136fbf0c81ad478b",
+    AUTH_KEY,
   },
 });
+
+const formatSize = (bytes) => {
+  if (typeof bytes !== "number") return bytes;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 const getFilesFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -245,7 +251,7 @@ useEffect(() => {
                       {file.filename}
                     </span>
                     <span className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0">
-                      {file.size || "—"}
+                      {formatSize(file.size) || "—"}
                     </span>
                   </div>
                 ))
@@ -278,7 +284,7 @@ useEffect(() => {
 
               <div>
                 <p className="font-bold text-gray-800">Size</p>
-                <p className="text-gray-600">{selectedFile.size || "Unknown"}</p>
+                <p className="text-gray-600">{formatSize(selectedFile.size) || "Unknown"}</p>
               </div>
 
               <div>
